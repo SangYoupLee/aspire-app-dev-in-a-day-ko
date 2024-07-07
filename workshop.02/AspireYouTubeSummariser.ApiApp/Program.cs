@@ -52,7 +52,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
+    var forecast =  Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -82,7 +82,7 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 
 record SummaryRequest(string? YouTubeLinkUrl, string VideoLanguageCode, string? SummaryLanguageCode);
 
-internal class YouTubeSummariserService(IYouTubeVideo youtube, AzureOpenAIClient openai, IConfiguration config)
+class YouTubeSummariserService(IYouTubeVideo youtube, AzureOpenAIClient openai, IConfiguration config)
 {
     private readonly IYouTubeVideo _youtube = youtube ?? throw new ArgumentNullException(nameof(youtube));
     private readonly AzureOpenAIClient _openai = openai ?? throw new ArgumentNullException(nameof(openai));
@@ -100,7 +100,7 @@ internal class YouTubeSummariserService(IYouTubeVideo youtube, AzureOpenAIClient
             new SystemChatMessage($"Here's the transcript. Summarise it in 5 bullet point items in the given language code of \"{req.SummaryLanguageCode}\"."),
             new UserChatMessage(caption),
         };
-        
+
         ChatCompletionOptions options = new()
         {
             MaxTokens = int.TryParse(this._config["Prompt:MaxTokens"], out var maxTokens) ? maxTokens : 3000,
@@ -113,3 +113,4 @@ internal class YouTubeSummariserService(IYouTubeVideo youtube, AzureOpenAIClient
         return summary;
     }
 }
+
